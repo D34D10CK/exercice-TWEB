@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+  </head>
+  <body>
+    <body ng-app="app">
+      <h1>Are you happy?</h1>
+      <div ng-controller="buttonController">
+        <button ng-click="onButtonClicked('yes')">yes</button>
+        <button ng-click="onButtonClicked('no')">no</button>
+        <button ng-click="onButtonClicked('idk')">I don't know</button>
+      </div>
+      <h1>Here is how you and other people feel...</h1>
+      <div ng-controller="DoughnutCtrl">
+        <canvas id="doughnut" class="chart chart-doughnut" chart-data="data" chart-labels="labels">
+        </canvas>
+      </div>
+      <script src="js/angular.min.js"></script>  
+      <script src="https://cdn.socket.io/socket.io-1.3.7.js"></script>
+      <script src="js/socket.js"></script>
+      <script src="js/chart.min.js"></script>          
+      <script src="js/angular-chart.js"></script>
+      <script type="text/javascript">
+        
+        angular.module("app", ["chart.js", "btford.socket-io"])
+        .factory("socket", function(socketFactory) {
+          return socketFactory();
+        })
+        .controller("DoughnutCtrl", function ($scope, socket) {
+          $scope.labels = ["yes", "no", "I don't know"];
+          socket.on("newData", function(data) {
+            $scope.data = data;
+          });
+        });
+
+        angular.module("app")
+        .controller("buttonController", function ($scope, socket) {
+          $scope.onButtonClicked = function(button) {
+            socket.emit("buttonClicked", button);
+          }
+        });
+      </script>
+    </body>
+</html>
